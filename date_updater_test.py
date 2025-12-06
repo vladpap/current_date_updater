@@ -1,4 +1,4 @@
-import os
+import os, sys
 import datetime
 from PIL import Image, ImageDraw, ImageFont
 import time
@@ -48,8 +48,8 @@ def create_date_image_custom(width=250, height=75, font_size=48):
     y = (height - text_height) // 2
     
     # Цвета с прозрачностью 50%
-    shadow_color = (0, 0, 0, 128)
-    text_color = (255, 255, 255, 128)
+    shadow_color = (0, 0, 0, 200)
+    text_color = (255, 255, 255, 255)
     
     # Тень
     shadow_offset = 2
@@ -62,7 +62,7 @@ def create_date_image_custom(width=250, height=75, font_size=48):
     image.save("current_date.png", "PNG")
     print(f"Изображение обновлено: {current_date} (размер шрифта: {font_size}px)")
     
-    image.save("current_date.png", "PNG")
+    image.save("/Volumes/variag/hires/poleznoe/Watermarks/current_date.png", "PNG")
     print(f"Изображение с улучшенной тенью обновлено: {current_date}")
 
 def update_daily():
@@ -86,24 +86,51 @@ def main():
     except KeyboardInterrupt:
         print("Сервис остановлен")
 
-# Альтернативная версия для Windows (без schedule)
+
 def windows_version():
-    """
-    Версия для Windows, которая использует планировщик задач
-    Запускайте эту функцию через планировщик задач Windows
-    """
+
     create_date_image_medium()
 
 if __name__ == "__main__":
-    # Проверяем, хотим ли мы запустить как сервис или однократно
-    response = input("Запустить как сервис (s) или создать однократно (o)? ").lower()
-    
-    if response == 's':
-        main()
-    elif response == 'b':
-        # Опция для версии с улучшенной тенью
-        create_date_image_medium()
-        print("Изображение с улучшенной тенью создано однократно")
+    # Проверяем аргументы командной строки
+    if len(sys.argv) > 1:
+        # Есть аргументы командной строки
+        arg = sys.argv[1].lower()
+        
+        if arg == 's':
+            print("Запуск как сервис по аргументу командной строки")
+            main()
+        elif arg == 'o':
+            print("Создание изображения однократно по аргументу командной строки")
+            create_date_image_medium()
+            print("Изображение создано однократно")
+        elif arg == 'b':
+            print("Создание изображения с улучшенной тенью однократно по аргументу командной строки")
+            create_date_image_medium()
+            print("Изображение с улучшенной тенью создано однократно")
+        else:
+            # Неизвестный аргумент - запрашиваем ввод
+            print(f"Неизвестный аргумент: {arg}")
+            response = input("Запустить как сервис (s) или создать однократно (o)? ").lower()
+            
+            if response == 's':
+                main()
+            elif response == 'b':
+                create_date_image_medium()
+                print("Изображение с улучшенной тенью создано однократно")
+            else:
+                create_date_image_medium()
+                print("Изображение создано однократно")
     else:
-        create_date_image_medium()
-        print("Изображение создано однократно")
+        # Нет аргументов командной строки - запрашиваем ввод
+        response = input("Запустить как сервис (s) или создать однократно (o)? ").lower()
+        
+        if response == 's':
+            main()
+        elif response == 'b':
+            create_date_image_medium()
+            print("Изображение с улучшенной тенью создано однократно")
+        else:
+            create_date_image_medium()
+            print("Изображение создано однократно")
+
