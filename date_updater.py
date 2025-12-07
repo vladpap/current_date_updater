@@ -1,23 +1,8 @@
-import os, sys
+import os
 import datetime
 from PIL import Image, ImageDraw, ImageFont
 import time
 import schedule
-
-font_size = 72
-
-def create_date_image_small():
-    """Маленький шрифт (24px)"""
-    create_date_image_custom(font_size=24)
-
-def create_date_image_medium():
-    """Средний шрифт (36px)"""
-    create_date_image_custom(font_size=36)
-
-def create_date_image_large():
-    """Большой шрифт (60px)"""
-    create_date_image_custom(font_size=60)
-
 
 def create_date_image_custom(width=250, height=75, font_size=48):
     """
@@ -31,14 +16,11 @@ def create_date_image_custom(width=250, height=75, font_size=48):
     
     try:
         font = ImageFont.truetype("Andale Mono.ttf", font_size)
-        print("Andale Mono.ttf")
     except:
         try:
             font = ImageFont.truetype("Arial.ttf", font_size)
-            print("Arial.ttf")
         except:
             font = ImageFont.load_default()
-            print("default")
     
     bbox = draw.textbbox((0, 0), current_date, font=font)
     text_width = bbox[2] - bbox[0]
@@ -59,19 +41,25 @@ def create_date_image_custom(width=250, height=75, font_size=48):
     # Текст
     draw.text((x, y), current_date, font=font, fill=text_color)
     
+    # Сохраняем изображение
     image.save("current_date.png", "PNG")
-    print(f"Изображение обновлено: {current_date} (размер шрифта: {font_size}px)")
     
-    image.save("/Volumes/variag/hires/poleznoe/Watermarks/current_date.png", "PNG")
-    print(f"Изображение с улучшенной тенью обновлено: {current_date}")
+    # Также сохраняем на внешний диск (если нужно)
+    try:
+        image.save("/Volumes/variag/hires/poleznoe/Watermarks/current_date.png", "PNG")
+    except:
+        pass
+    
+    print(f"Изображение обновлено: {current_date} (размер шрифта: {font_size}px)")
 
 def update_daily():
     """Функция для ежедневного обновления в 00:01"""
-    create_date_image_medium()
+    create_date_image_custom(font_size=36)  # Средний шрифт
 
 def main():
     # Создаем первое изображение при запуске
-    create_date_image_medium()
+    print("Сервис запускается...")
+    create_date_image_custom(font_size=36)
     
     # Настраиваем ежедневное обновление в 00:01
     schedule.every().day.at("00:01").do(update_daily)
@@ -84,53 +72,8 @@ def main():
             schedule.run_pending()
             time.sleep(60)  # Проверяем каждую минуту
     except KeyboardInterrupt:
-        print("Сервис остановлен")
-
-
-def windows_version():
-
-    create_date_image_medium()
+        print("\nСервис остановлен")
 
 if __name__ == "__main__":
-    # Проверяем аргументы командной строки
-    if len(sys.argv) > 1:
-        # Есть аргументы командной строки
-        arg = sys.argv[1].lower()
-        
-        if arg == 's':
-            print("Запуск как сервис по аргументу командной строки")
-            main()
-        elif arg == 'o':
-            print("Создание изображения однократно по аргументу командной строки")
-            create_date_image_medium()
-            print("Изображение создано однократно")
-        elif arg == 'b':
-            print("Создание изображения с улучшенной тенью однократно по аргументу командной строки")
-            create_date_image_medium()
-            print("Изображение с улучшенной тенью создано однократно")
-        else:
-            # Неизвестный аргумент - запрашиваем ввод
-            print(f"Неизвестный аргумент: {arg}")
-            response = input("Запустить как сервис (s) или создать однократно (o)? ").lower()
-            
-            if response == 's':
-                main()
-            elif response == 'b':
-                create_date_image_medium()
-                print("Изображение с улучшенной тенью создано однократно")
-            else:
-                create_date_image_medium()
-                print("Изображение создано однократно")
-    else:
-        # Нет аргументов командной строки - запрашиваем ввод
-        response = input("Запустить как сервис (s) или создать однократно (o)? ").lower()
-        
-        if response == 's':
-            main()
-        elif response == 'b':
-            create_date_image_medium()
-            print("Изображение с улучшенной тенью создано однократно")
-        else:
-            create_date_image_medium()
-            print("Изображение создано однократно")
-
+    # Всегда запускаем как сервис
+    main()
